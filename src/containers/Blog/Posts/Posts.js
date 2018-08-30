@@ -12,35 +12,35 @@ class Posts extends Component {
     componentDidMount () {
         axios.get('/opportunities') // error handling if URL is wrong
         .then(response => {
-            const updatedOpps = response.data
-            let tempData = null;
-            let arrayOpps = [];
-            oppsMapped = updatedOpps.map((opportunity,key) => {
+            let updatedOpps = [];
+            let oppCount = 0;
+
+            const oppsData = response.data;
+            oppsData.forEach(oppData => {
+                if (oppCount == 0 || updatedOpps[oppCount -1].id != oppData.id) {
+                    let opp = {
+                        id: oppData.id,
+                        date: oppData.date,
+                        agents: [ oppData.agent ],
+                        agentsIds: [ oppData.agentId ],
+                        value: oppData.value,
+                        name: oppData.name,
+                        state: oppData.state,
+                        probability: oppData.probability
+                    }
+                    
+                    updatedOpps.push (opp);
+                    oppCount++;
+                }
+                else {
+                    updatedOpps[oppCount - 1].agents.push(oppData.agent);
+                    updatedOpps[oppCount - 1].agentsIds.push(oppData.agentId);
+                }
+            });
+
+
             
-                // check if tempData is empty   // why? 
-                if (tempData === null) 
-                {
-                    tempData = updatedOpps[key]
-                }
-                else 
-                {
-                    //two adjacent elements does NOT have the same id
-                    if(tempData.id !== updatedOpps[key].id) 
-                    {    
-                    arrayOpps[updatedOpps[key-1]].push ({
-                        "id":tempData[key].id,
-                    })
-                    tempData = updatedOpps[i]
-                    }
-                    // have the same id 
-                    else
-                    {
-                    return;
-                    }
-                }
-               
-            }),
-            this.setState({opps: arrayOpps}),
+            this.setState({opps: updatedOpps})
             console.log(response)
         })
         .catch(error => {
@@ -62,11 +62,12 @@ class Posts extends Component {
             name={post.name}
             state= {post.state}
             date={post.date}
-            agent={post.agent}
+            agents={post.agents}
+            agentsIds={post.agentsIds}
             value={parseFloat(post.value)}
             probability={post.probability}
-            result= {post.probability* post.value / 100}  
-            clicked={()=> this.opportunitySelected(post.id)} />
+            result= {post.probability* post.value / 100}
+            />
             });
         }
 
@@ -82,64 +83,3 @@ class Posts extends Component {
 }
 
 export default Posts;
-
-
-
-
-// let oppsMapped;
-//     if(!this.state.opps) {
-//         console.log('loading')   
-//     }
-//     else{
-//         let opportunities = this.state.opps
-//         let tempData = null;
-//         console.log("Opps",opportunities)
-//          oppsMapped = opportunities.map((opportunity,key) =>
-//           {
-//              if (tempData === null) 
-//              {
-//                  tempData = opportunities[key]
-//              }
-//              else
-//              {
-//                  if(tempData.id !== opportunities[key].id) 
-//                  {
-//                      return <Post
-//                      id={tempData.id}
-//                      key={key}
-//                      name={tempData.name}
-//                      state= {tempData.state}
-//                      date={tempData.date}
-//                      agent={tempData.agent}
-//                      value={parseFloat(tempData.value)}
-//                      probability={tempData.probability}
-//                      result= {tempData.probability* tempData.value / 100}  
-//                      clicked={()=> this.opportunitySelected(tempData.id)} />
-//                  } 
-//                  else 
-//                  {
-//                      // add to array
-//                  }
-//              }
-//              tempData = opportunities[key]
-//         });
-//     }
-//     return (
-//         <div className="opps">
-//             {oppsMapped}
-//         </div>
-//     ); 
-
-
-
-
-    // for ( let i = 0; i < updatedOpps.length; i++) {
-    //     if (updatedOpps[i].id !== updatedOpps[i+1].id){
-    //         arrayOpps.push(updatedOpps[i])
-    //     }
-    //     else
-    //     {
-    //       tempData.push[updatedOpps[i], updatedOpps[i+1]]
-    //       console.log("tempdata", tempData)  
-    //     }
-    // }
